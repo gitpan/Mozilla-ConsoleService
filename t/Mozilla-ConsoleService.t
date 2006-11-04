@@ -4,8 +4,11 @@ use warnings FATAL => 'all';
 use Test::More tests => 7;
 use Mozilla::Mechanize;
 use URI::file;
+use File::Temp qw(tempdir);
 
 BEGIN { use_ok('Mozilla::ConsoleService') };
+
+$ENV{HOME} = tempdir("/tmp/moz_console_XXXXXX", CLEANUP => 1);
 
 my $url = URI::file->new_abs("t/test.html")->as_string;
 my $moz = Mozilla::Mechanize->new(quiet => 1, visible => 0);
