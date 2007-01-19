@@ -4,19 +4,24 @@
 
 #include "ppport.h"
 
-#include <mozilla/nsCOMPtr.h>
-#include <mozilla/xpcom/nsIConsoleService.h>
-#include <mozilla/xpcom/nsIConsoleListener.h>
-#include <mozilla/xpcom/nsIConsoleMessage.h>
-#include <mozilla/xpconnect/nsIScriptError.h>
-#include <mozilla/nsIServiceManager.h>
-#include <mozilla/string/nsString.h>
+#include <nsCOMPtr.h>
+#include <xpcom/nsIConsoleService.h>
+#include <xpcom/nsIConsoleListener.h>
+#include <xpcom/nsIConsoleMessage.h>
+#include <xpconnect/nsIScriptError.h>
+#include <nsIServiceManager.h>
+#include <nsEmbedString.h>
+#include <nsServiceManagerUtils.h>
 
 static SV *wrap_unichar_string(const PRUnichar *uni_str) {
+	nsEmbedString utf8;
+	nsEmbedCString u8c;
 	const char * u8str;
-	NS_ConvertUTF16toUTF8 utf8(uni_str);
 
-	u8str = utf8.get();
+	utf8 = uni_str;
+	NS_UTF16ToCString(utf8, NS_CSTRING_ENCODING_UTF8, u8c);
+
+	u8str = u8c.get();
 	return newSVpv(u8str, 0);
 }
 
@@ -37,16 +42,15 @@ NS_IMETHODIMP MyListener::Observe(nsIConsoleMessage *msg) {
 	const nsID id = NS_GET_IID(nsIScriptError);
 	nsIScriptError *se = 0;
 	SV *psv;
-	char *tos = 0;
+	nsEmbedCString u8c;
 
 	msg->QueryInterface(id, (void **) &se);
-	rv = se ? se->ToString(&tos) : msg->GetMessage(&str);
+	rv = se ? se->ToString(u8c) : msg->GetMessage(&str);
 	if (NS_FAILED(rv))
 		goto out;
 
-	if (tos) {
-		psv = newSVpv(tos, 0);
-		free(tos);
+	if (u8c.get()) {
+		psv = newSVpv(u8c.get(), 0);
 	} else
 		psv = wrap_unichar_string(str);
 
