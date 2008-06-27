@@ -6,9 +6,16 @@ use Config;
 use ExtUtils::MakeMaker;
 use ExtUtils::PkgConfig;
 use ExtUtils::Depends;
+use File::Slurp;
 
 my %pkgcfg = ExtUtils::PkgConfig->find("mozilla-gtkmozembed >= 1.7"
 		, "firefox-gtkmozembed >= 1.5");
+
+my $ver = $pkgcfg{modversion};
+$ver *= 100;
+mkdir "build";
+write_file("build/version.h", "#define MCS_MOZEMBED_VERSION $ver\n");
+
 my $dep = ExtUtils::Depends->new('Mozilla::ConsoleService', 'Gtk2::MozEmbed');
 $dep->set_inc($pkgcfg{cflags});
 $dep->set_libs($pkgcfg{libs});

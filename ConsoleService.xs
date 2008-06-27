@@ -5,13 +5,18 @@
 #include "ppport.h"
 
 #include <nsCOMPtr.h>
-#include <xpcom/nsIConsoleService.h>
-#include <xpcom/nsIConsoleListener.h>
-#include <xpcom/nsIConsoleMessage.h>
-#include <xpconnect/nsIScriptError.h>
+#include <nsIConsoleService.h>
+#include <nsIConsoleListener.h>
+#include <nsIConsoleMessage.h>
+#include <nsIScriptError.h>
 #include <nsIServiceManager.h>
 #include <nsEmbedString.h>
 #include <nsServiceManagerUtils.h>
+#include "build/version.h"
+
+#if MCS_MOZEMBED_VERSION < 190
+#define GetMessageMoz GetMessage
+#endif /* MCS_MOZEMBED_VERSION */
 
 static SV *wrap_unichar_string(const PRUnichar *uni_str) {
 	nsEmbedString utf8;
@@ -45,7 +50,7 @@ NS_IMETHODIMP MyListener::Observe(nsIConsoleMessage *msg) {
 	nsEmbedCString u8c;
 
 	msg->QueryInterface(id, (void **) &se);
-	rv = se ? se->ToString(u8c) : msg->GetMessage(&str);
+	rv = se ? se->ToString(u8c) : msg->GetMessageMoz(&str);
 	if (NS_FAILED(rv))
 		goto out;
 
