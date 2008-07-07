@@ -72,8 +72,7 @@ out:
 
 MODULE = Mozilla::ConsoleService		PACKAGE = Mozilla::ConsoleService		
 
-int
-Register(cb)
+SV *Register(cb)
 	SV *cb;
 	INIT:
 		nsresult rv;
@@ -95,6 +94,15 @@ Register(cb)
 
 		lis->callback_ = newSVsv(cb);
 out_retval:
-		RETVAL = (rv == NS_OK);
+		RETVAL = (rv == NS_OK) ? newSViv((IV) lis.get()) : NULL;
 	OUTPUT:
 		RETVAL
+
+void Unregister(SV *handle)
+	INIT:
+		nsresult rv;
+		nsCOMPtr<nsIConsoleService> os;
+	CODE:
+		os = do_GetService("@mozilla.org/consoleservice;1", &rv);
+		os->UnregisterListener((MyListener *) SvIV(handle));
+

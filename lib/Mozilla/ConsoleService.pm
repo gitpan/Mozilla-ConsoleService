@@ -25,7 +25,7 @@ our @EXPORT = qw(
 	
 );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 require XSLoader;
 XSLoader::load('Mozilla::ConsoleService', $VERSION);
@@ -44,7 +44,10 @@ Mozilla::ConsoleService - Perl interface to Mozilla nsIConsoleService
 
   use Mozilla::ConsoleService;
 
-  Mozilla::PromptService::Register(sub { print $_[0]; });
+  my $handle = Mozilla::PromptService::Register(sub { print $_[0]; });
+
+  # when no longer needed
+  Mozilla::PromptService::Unregister($handle);
 
 =head1 DESCRIPTION
 
@@ -59,6 +62,12 @@ documentation.
 =head2 Register($callback)
 
 Registers callback to get log messages. Log messages are passed as strings.
+
+Returns handle to be used for Unregister
+
+=head2 Unregister($handle)
+
+Unregisters ConsoleService listener.
 
 =head1 SEE ALSO
 
