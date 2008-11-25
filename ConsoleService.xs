@@ -14,7 +14,7 @@
 #include <nsServiceManagerUtils.h>
 #include "build/version.h"
 
-#if MCS_MOZEMBED_VERSION < 190
+#if MCS_MOZEMBED_VERSION < 1900
 #define GetMessageMoz GetMessage
 #endif /* MCS_MOZEMBED_VERSION */
 

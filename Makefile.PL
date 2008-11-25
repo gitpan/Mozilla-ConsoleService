@@ -12,7 +12,7 @@ my %pkgcfg = ExtUtils::PkgConfig->find("mozilla-gtkmozembed >= 1.7"
 		, "firefox-gtkmozembed >= 1.5");
 
 my $ver = $pkgcfg{modversion};
-$ver *= 100;
+$ver =~ s/\.//g;
 mkdir "build";
 write_file("build/version.h", "#define MCS_MOZEMBED_VERSION $ver\n");
 
